@@ -14,13 +14,22 @@ app.set('views', path.join(__dirname, 'views'));
 const usersFilePath = path.join(__dirname, 'users.json');
 
 const getUsers = () => {
-    const data = fs.readFileSync(usersFilePath, 'utf8');
-    return JSON.parse(data);
+    try {
+        const data = fs.readFileSync(usersFilePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading users file:', error);
+        return [];
+    }
 }
 
 const saveUsers = (users) => {
-    const data = JSON.stringify(users, null, 2);
-    fs.writeFileSync(usersFilePath, data, 'utf8');
+    try {
+        const data = JSON.stringify(users, null, 2);
+        fs.writeFileSync(usersFilePath, data, 'utf8');
+    } catch (error) {
+        console.error('Error writing users file:', error);
+    }
 }
 
 const addUser = (username, password) => {
@@ -54,8 +63,13 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
     const { username, password } = req.body;
-    addUser(username, password);
-    res.render('success', { username });
+    try {
+        addUser(username, password);
+        res.render('success', { username });
+    } catch (error) {
+        console.error('Error adding user:', error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 app.listen(port, () => {
